@@ -1,7 +1,9 @@
-var Grid = Class.extend({
-    init: function(name) {
-        this.name = name;
-    },
+define(["class"], function() {
+    return Class.extend({
+        init: function(name) {
+            this.name = name;
+        },
 
-    name: ""
+        name: ""
+    });
 });
