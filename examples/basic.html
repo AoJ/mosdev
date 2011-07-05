@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple grid</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/jquery.tmpl/jquery.tmpl.js"></script>
+    <script type="text/javascript" src="../lib/knockout/knockout-latest.debug.js"></script>
+    <script type="text/javascript" src="../src/namespace.js"></script>
+    <script type="text/javascript" src="../src/class.js"></script>
+    <script type="text/javascript" src="../src/grid/grid.js"></script>
+    <script type="text/javascript" src="../src/grid/bindingHandler.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var model = new mos.grid();
+            model.columns.push(new mos.grid.column({
+                title: "Name",
+                property: "name"
+            }));
+
+            model.columns.push(new mos.grid.column({
+                title: "Address",
+                property: "address"
+            }));
+
+            var people = [
+                { name: "Alice Anderson", address: "1 Zorba Avenue" },
+                { name: "Bill Boss", address: "65 Oak Drive" }
+            ];
+
+            ko.utils.arrayForEach(people, function(person) {
+                model.rows.push(person);
+            })
+
+            ko.applyBindings({
+                model: model
+            });
+        });
+    </script>
+    <script type="text/html" id="gridTemplate">
+        <table>
+            <thead>
+                <tr data-bind="template: { name: 'gridHeaderColumnTemplate', foreach: columns }">
+                </tr>
+            </thead>
+            <tbody data-bind="template: { name: 'gridRowTemplate', foreach: rows, templateOptions: { grid: $data } }">
+            </tbody>
+        </table>
+    </script>
+
+    <script type="text/html" id="gridHeaderColumnTemplate">
+        <th>{{= title }}</th>
+    </script>
+
+    <script type="text/html" id="gridRowTemplate">
+        <tr data-bind="template: { name: 'gridColumnTemplate', foreach: $item.grid.rowData($data) }">
+        </tr>
+    </script>
+
+    <script type="text/html" id="gridColumnTemplate">
+        <td>{{= displayValue }}</td>
+    </script>
+</head>
+<body>
+    <div data-bind="grid: model">
+    </div>
+</body>
+</html>
