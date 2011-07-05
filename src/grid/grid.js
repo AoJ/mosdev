@@ -19,7 +19,7 @@ mos.grid = Class.extend({
          * This function converts a single rowData in an array of columns that can be rendered.
          * @param row The row that should be converted.
          */
-        _this.rowData = function(row) {
+        _this.cellData = function(row) {
             var result = [];
             ko.utils.arrayForEach(_this.columns(), function(column) {
                 result.push({

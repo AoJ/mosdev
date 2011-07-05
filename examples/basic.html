@@ -11,31 +11,52 @@
     <script type="text/javascript" src="../src/grid/bindingHandler.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            /**
+             * Create a new grid model
+             */
             var model = new mos.grid();
-            model.columns.push(new mos.grid.column({
-                title: "Name",
-                property: "name"
-            }));
 
-            model.columns.push(new mos.grid.column({
-                title: "Address",
-                property: "address"
-            }));
-
+            /**
+             * Define a dataset
+             */
             var people = [
                 { name: "Alice Anderson", address: "1 Zorba Avenue" },
                 { name: "Bill Boss", address: "65 Oak Drive" }
             ];
 
+            /**
+             * Add every person to the model
+             */
             ko.utils.arrayForEach(people, function(person) {
                 model.rows.push(person);
             })
 
+            /**
+             * Add the "name" column
+             */
+            model.columns.push(new mos.grid.column({
+                title: "Name",
+                property: "name"
+            }));
+
+            /**
+             * Add the "address" column
+             */
+            model.columns.push(new mos.grid.column({
+                title: "Address",
+                property: "address"
+            }));
+
+            /**
+             * Sprinkle magic binding dust
+             */
             ko.applyBindings({
                 model: model
             });
         });
     </script>
+
+    <!-- The main grid template -->
     <script type="text/html" id="gridTemplate">
         <table>
             <thead>
@@ -47,16 +68,19 @@
         </table>
     </script>
 
+    <!-- The template for every grid header -->
     <script type="text/html" id="gridHeaderColumnTemplate">
         <th>{{= title }}</th>
     </script>
 
+    <!-- The template for every row -->
     <script type="text/html" id="gridRowTemplate">
-        <tr data-bind="template: { name: 'gridColumnTemplate', foreach: $item.grid.rowData($data) }">
+        <tr data-bind="template: { name: 'gridCellTemplate', foreach: $item.grid.cellData($data) }">
         </tr>
     </script>
 
-    <script type="text/html" id="gridColumnTemplate">
+    <!-- The template for every cell in a row -->
+    <script type="text/html" id="gridCellTemplate">
         <td>{{= displayValue }}</td>
     </script>
 </head>

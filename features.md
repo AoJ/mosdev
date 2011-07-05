@@ -13,3 +13,4 @@
 * Full documentation (JSDoc?)
 * Full unit test suite
 * Decent build process
+* Rows should allow subrows (to act like a tree)
