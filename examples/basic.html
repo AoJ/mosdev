@@ -20,8 +20,8 @@
              * Define a dataset
              */
             var people = [
-                { name: "Alice Anderson", address: "1 Zorba Avenue" },
-                { name: "Bill Boss", address: "65 Oak Drive" }
+                { name: ko.observable("Alice Anderson"), address: ko.observable("1 Zorba Avenue") },
+                { name: ko.observable("Bill Boss"), address: ko.observable("65 Oak Drive") }
             ];
 
             /**
@@ -47,11 +47,17 @@
                 property: "address"
             }));
 
+            var updateGrid = function() {
+                people[0].name("Charlie Changed");
+                model.columns()[0].title("Boo!");
+            };
+
             /**
              * Sprinkle magic binding dust
              */
             ko.applyBindings({
-                model: model
+                model: model,
+                updateGrid: updateGrid
             });
         });
     </script>
@@ -60,10 +66,10 @@
     <script type="text/html" id="gridTemplate">
         <table>
             <thead>
-                <tr data-bind="template: { name: 'gridHeaderColumnTemplate', foreach: columns }">
-                </tr>
+            <tr data-bind="template: { name: 'gridHeaderColumnTemplate', foreach: columns }">
+            </tr>
             </thead>
-            <tbody data-bind="template: { name: 'gridRowTemplate', foreach: rows, templateOptions: { grid: $data } }">
+            <tbody data-bind="template: { name: 'gridRowTemplate', foreach: displayRows }">
             </tbody>
         </table>
     </script>
@@ -75,7 +81,7 @@
 
     <!-- The template for every row -->
     <script type="text/html" id="gridRowTemplate">
-        <tr data-bind="template: { name: 'gridCellTemplate', foreach: $item.grid.cellData($data) }">
+        <tr data-bind="template: { name: 'gridCellTemplate', foreach: $data }">
         </tr>
     </script>
 
@@ -85,7 +91,7 @@
     </script>
 </head>
 <body>
-    <div data-bind="grid: model">
-    </div>
+    <div data-bind="grid: model"></div>
+    <input type="button" data-bind="click: updateGrid" value="Change some things">
 </body>
 </html>

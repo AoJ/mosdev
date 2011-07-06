@@ -19,15 +19,31 @@ mos.grid = Class.extend({
          * This function converts a single rowData in an array of columns that can be rendered.
          * @param row The row that should be converted.
          */
-        _this.cellData = function(row) {
+        var getCellData = function(row) {
             var result = [];
             ko.utils.arrayForEach(_this.columns(), function(column) {
-                result.push({
-                    displayValue: row[column.property()]
-                });
+                result.push(new mos.grid.cell(row, column));
             });
             return result;
         };
+
+        /**
+         * displayRows contains the row-data converted into data the grid will display.
+         * Every item in this array represents a row, containing another array with all the cells.
+         */
+        _this.displayRows = ko.observableArray();
+
+        /**
+         * This anonymous dependent observable recalculates all "displayRows" every time one of its
+         * dependencies changes. This is a good candidate for optimization later.
+         */
+        ko.dependentObservable(function() {
+            var newDisplayRows = [];
+            ko.utils.arrayForEach(_this.rows(), function(row) {
+                newDisplayRows.push(getCellData(row));
+            });
+            _this.displayRows(newDisplayRows);
+        });
     }
 });
 
@@ -40,5 +56,19 @@ mos.grid.column = Class.extend({
 
         _this.title = ko.observable(options.title);
         _this.property = ko.observable(options.property);
+    }
+});
+
+/**
+ * One cell in the grid
+ */
+mos.grid.cell = Class.extend({
+    init: function(row, column) {
+        var _this = this;
+
+        /**
+         * The value that will actually be displayed (i.e. completely formatted)
+         */
+        _this.displayValue = row[column.property()];
     }
 });
