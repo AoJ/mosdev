@@ -7,7 +7,6 @@ describe("Grid", function() {
         expect(this.grid).not.toBe(undefined);
     });
 
-    // This spec shows up as being "skipped", even though "can be added" is run.
     describe("Rows", function() {
         beforeEach(function() {
             this.grid.rows.push({ a: "a" });
