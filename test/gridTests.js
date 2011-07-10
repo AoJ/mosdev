@@ -7,17 +7,17 @@ describe("Grid", function() {
         expect(this.grid).not.toBe(undefined);
     });
 
-    describe("Rows", function() {
+    describe("Adding a row", function() {
         beforeEach(function() {
             this.grid.rows.push({ a: "a" });
         });
 
-        it("can be added", function() {
+        it("can be done", function() {
             expect(this.grid.rows()[0]).toEqual({ a: "a" });
         });
     });
 
-    describe("DisplayRows", function() {
+    describe("After adding a row and a column, DisplayRows", function() {
         beforeEach(function() {
             this.grid.rows.push({ a: "a", b: "b" });
             this.grid.columns.push(new mos.grid.column({
