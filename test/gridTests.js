@@ -19,7 +19,7 @@ describe("Grid", function() {
 
     describe("After adding a row and a column, DisplayRows", function() {
         beforeEach(function() {
-            this.grid.rows.push({ a: "a", b: "b" });
+            this.grid.rows.push({ a: "a_value", b: "b_value" });
             this.grid.columns.push(new mos.grid.column({
                 property: "b"
             }));
@@ -35,7 +35,7 @@ describe("Grid", function() {
         });
 
         it("contain the correct property of a row", function() {
-            expect(this.grid.displayRows()[0][0].displayValue).toBe("b");
+            expect(this.grid.displayRows()[0][0].displayValue).toBe("b_value");
         });
     });
 });
