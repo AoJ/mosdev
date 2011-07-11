@@ -2,13 +2,16 @@
  * The main grid class.
  */
 mos.grid = Class.extend({
-    init: function() {
+    init: function(options) {
         var _this = this;
+
+        options = options || {};
+        options.rows = options.rows || ko.observableArray();
 
         /**
          * The rows of the grid. Should not be altered in any way by the grid itself.
          */
-        _this.rows = ko.observableArray();
+        _this.rows = options.rows;
 
         /**
          * The column definitions (mos.grid.column). Used to configure which data is rendered into each column.

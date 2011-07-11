@@ -9,32 +9,42 @@
     <script type="text/javascript" src="../src/class.js"></script>
     <script type="text/javascript" src="../src/grid/grid.js"></script>
     <script type="text/javascript" src="../src/grid/bindingHandler.js"></script>
+    <script type="text/javascript" src="../src/pager/pager.js"></script>
+    <script type="text/javascript" src="../src/pager/bindingHandler.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             /**
-             * Create a new grid model
+             * Create the view models.
              */
-            var model = new mos.grid();
+            var grid = new mos.grid();
+            var pager = new mos.pager();
 
             /**
-             * Define a dataset
+             * Every time we go to a new page, create a new batch of data, simulating data coming in from
+             * a server.
              */
-            var people = [
-                { name: ko.observable("Alice Anderson"), address: ko.observable("1 Zorba Avenue") },
-                { name: ko.observable("Bill Boss"), address: ko.observable("65 Oak Drive") }
-            ];
+            ko.dependentObservable(function() {
+                var people = [];
+                for (var t = 1; t <= pager.itemsPerPage(); t++) {
+                    var index = t + ((pager.currentPage() - 1) * pager.itemsPerPage());
+                    if (index > pager.totalItems()) break;
+                    people.push({
+                        name: ko.observable("Person " + index),
+                        address: ko.observable(index + " Dummy Avenue")
+                    });
+                }
+                grid.rows(people);
+            });
 
             /**
-             * Add every person to the model
+             * Force the currentPage to update, to invoke the creation of the data.
              */
-            ko.utils.arrayForEach(people, function(person) {
-                model.rows.push(person);
-            })
+            pager.totalItems(64);
 
             /**
              * Add the "name" column
              */
-            model.columns.push(new mos.grid.column({
+            grid.columns.push(new mos.grid.column({
                 title: "Name",
                 property: "name"
             }));
@@ -42,21 +52,21 @@
             /**
              * Add the "address" column
              */
-            model.columns.push(new mos.grid.column({
+            grid.columns.push(new mos.grid.column({
                 title: "Address",
                 property: "address"
             }));
 
             var updateGrid = function() {
-                people[0].name("Charlie Changed");
-                model.columns()[0].title("Boo!");
+                grid.columns()[0].title("Boo!");
             };
 
             /**
              * Sprinkle magic binding dust
              */
             ko.applyBindings({
-                model: model,
+                grid: grid,
+                pager: pager,
                 updateGrid: updateGrid
             });
         });
@@ -89,9 +99,28 @@
     <script type="text/html" id="gridCellTemplate">
         <td>{{= displayValue }}</td>
     </script>
+
+    <!-- The template for the pager -->
+    <script type="text/html" id="pagerTemplate">
+        <div>
+            <button data-bind="click: first, enable: canGoBack">&lt;&lt;</button>
+            <button data-bind="click: previous, enable: canGoBack">&lt;</button>
+            <span data-bind="template: { foreach: navigationPages, name: 'pagerPageTemplate', templateOptions: { pager: $data } }">
+            </span>
+            <button data-bind="click: next, enable: canGoForward">&gt;</button>
+            <button data-bind="click: last, enable: canGoForward">&gt;&gt;</button>
+        </div>
+    </script>
+
+    <script type="text/html" id="pagerPageTemplate">
+        <button data-bind="click: function() { $item.pager.gotoPage($data); }, enable: $item.pager.canGotoPage($data)">
+            {{= $data }}
+        </button>
+    </script>
 </head>
 <body>
-    <div data-bind="grid: model"></div>
-    <input type="button" data-bind="click: updateGrid" value="Change some things">
+<div data-bind="pager: pager"></div>
+<div data-bind="grid: grid"></div>
+<input type="button" data-bind="click: updateGrid" value="Change some things">
 </body>
 </html>
