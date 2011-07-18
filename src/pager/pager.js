@@ -1,3 +1,9 @@
+namespace("mos.pager");
+
+/**
+ * The pager is a class that provides pager functionality. Provided with "totalItems" and "itemsPerPage", the pager will
+ * allow the user to navigate back and forward through the appropriate number of pages.
+ */
 mos.pager = Class.extend({
     init: function(options) {
         var _this = this;

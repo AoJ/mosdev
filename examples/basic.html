@@ -2,44 +2,46 @@
 <html>
 <head>
     <title>Simple grid</title>
+
+    <!-- Third party dependencies -->
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script type="text/javascript" src="../lib/jquery.tmpl/jquery.tmpl.js"></script>
     <script type="text/javascript" src="../lib/knockout/knockout-latest.debug.js"></script>
+
+    <!-- All our classes -->
     <script type="text/javascript" src="../src/namespace.js"></script>
     <script type="text/javascript" src="../src/class.js"></script>
+    <script type="text/javascript" src="../src/extenders/change.js"></script>
+    <script type="text/javascript" src="../src/dataSource/array.js"></script>
+    <script type="text/javascript" src="../src/dataSource/view.js"></script>
     <script type="text/javascript" src="../src/grid/grid.js"></script>
     <script type="text/javascript" src="../src/grid/bindingHandler.js"></script>
     <script type="text/javascript" src="../src/pager/pager.js"></script>
     <script type="text/javascript" src="../src/pager/bindingHandler.js"></script>
+
+    <!-- The grid and pager templates -->
+    <script type="text/javascript" src="template.js"></script>
+
+    <!-- A test data generator -->
+    <script type="text/javascript" src="peopleData.js"></script>
+
     <script type="text/javascript">
         $(document).ready(function() {
             /**
+             * Create a dummy dataset of 500 records.
+             */
+            var people = createPeopleData(500);
+            var dataSource = new mos.dataSource.array(people);
+
+            /**
              * Create the view models.
              */
-            var grid = new mos.grid();
-            var pager = new mos.pager();
-
-            /**
-             * Every time we go to a new page, create a new batch of data, simulating data coming in from
-             * a server.
-             */
-            ko.dependentObservable(function() {
-                var people = [];
-                for (var t = 1; t <= pager.itemsPerPage(); t++) {
-                    var index = t + ((pager.currentPage() - 1) * pager.itemsPerPage());
-                    if (index > pager.totalItems()) break;
-                    people.push({
-                        name: ko.observable("Person " + index),
-                        address: ko.observable(index + " Dummy Avenue")
-                    });
-                }
-                grid.rows(people);
+            var grid = new mos.grid({
+                rows: dataSource.items
             });
-
-            /**
-             * Force the currentPage to update, to invoke the creation of the data.
-             */
-            pager.totalItems(64);
+            var pager = new mos.pager({
+                totalItems: people.length
+            });
 
             /**
              * Add the "name" column
@@ -57,70 +59,37 @@
                 property: "address"
             }));
 
-            var updateGrid = function() {
-                grid.columns()[0].title("Boo!");
-            };
+            /**
+             * When certain grid and pager parameters change, we need to change the view on the datasource.
+             */
+            ko.dependentObservable(function() {
+                var start = (pager.currentPage() - 1) * pager.itemsPerPage();
+                var view = new mos.dataSource.view({
+                    totalItems: 500,
+                    start: start,
+                    stop: start + pager.itemsPerPage(),
+                    sorting: ko.utils.arrayMap(grid.sortStatus(), function(status) {
+                       return {
+                           property: status.property,
+                           order: status.order
+                       };
+                    })
+                });
+                dataSource.view(view);
+            });
 
             /**
              * Sprinkle magic binding dust
              */
             ko.applyBindings({
                 grid: grid,
-                pager: pager,
-                updateGrid: updateGrid
+                pager: pager
             });
         });
     </script>
-
-    <!-- The main grid template -->
-    <script type="text/html" id="gridTemplate">
-        <table>
-            <thead>
-            <tr data-bind="template: { name: 'gridHeaderColumnTemplate', foreach: columns }">
-            </tr>
-            </thead>
-            <tbody data-bind="template: { name: 'gridRowTemplate', foreach: displayRows }">
-            </tbody>
-        </table>
-    </script>
-
-    <!-- The template for every grid header -->
-    <script type="text/html" id="gridHeaderColumnTemplate">
-        <th>{{= title }}</th>
-    </script>
-
-    <!-- The template for every row -->
-    <script type="text/html" id="gridRowTemplate">
-        <tr data-bind="template: { name: 'gridCellTemplate', foreach: $data }">
-        </tr>
-    </script>
-
-    <!-- The template for every cell in a row -->
-    <script type="text/html" id="gridCellTemplate">
-        <td>{{= displayValue }}</td>
-    </script>
-
-    <!-- The template for the pager -->
-    <script type="text/html" id="pagerTemplate">
-        <div>
-            <button data-bind="click: first, enable: canGoBack">&lt;&lt;</button>
-            <button data-bind="click: previous, enable: canGoBack">&lt;</button>
-            <span data-bind="template: { foreach: navigationPages, name: 'pagerPageTemplate', templateOptions: { pager: $data } }">
-            </span>
-            <button data-bind="click: next, enable: canGoForward">&gt;</button>
-            <button data-bind="click: last, enable: canGoForward">&gt;&gt;</button>
-        </div>
-    </script>
-
-    <script type="text/html" id="pagerPageTemplate">
-        <button data-bind="click: function() { $item.pager.gotoPage($data); }, enable: $item.pager.canGotoPage($data)">
-            {{= $data }}
-        </button>
-    </script>
 </head>
 <body>
-<div data-bind="pager: pager"></div>
-<div data-bind="grid: grid"></div>
-<input type="button" data-bind="click: updateGrid" value="Change some things">
+    <div data-bind="pager: pager"></div>
+    <div data-bind="grid: grid"></div>
 </body>
 </html>
