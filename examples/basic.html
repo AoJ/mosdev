@@ -65,7 +65,7 @@
             ko.dependentObservable(function() {
                 var start = (pager.currentPage() - 1) * pager.itemsPerPage();
                 var view = new mos.dataSource.view({
-                    totalItems: 500,
+                    totalItems: people.length,
                     start: start,
                     stop: start + pager.itemsPerPage(),
                     sorting: ko.utils.arrayMap(grid.sortStatus(), function(status) {
