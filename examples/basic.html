@@ -68,12 +68,7 @@
                     totalItems: people.length,
                     start: start,
                     stop: start + pager.itemsPerPage(),
-                    sorting: ko.utils.arrayMap(grid.sortStatus(), function(status) {
-                       return {
-                           property: status.property,
-                           order: status.order
-                       };
-                    })
+                    sorting: grid.sortStatus()
                 });
                 dataSource.view(view);
             });
